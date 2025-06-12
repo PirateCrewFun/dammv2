@@ -15,7 +15,7 @@ const positionNft = Keypair.generate();
 async function createPosition() {
   try {
     // const poolAddress = new PublicKey("75pihNzDVPgEY6ARGvbQyWKE2hXrXRU7pkVMCJNrviDU")
-    const poolAddress = new PublicKey("GuSPNe9YgtzMzzuCM9UVFWjDgPGtj6yW3qdTawyUPpGG")
+    const poolAddress = new PublicKey("DSaeewEUWTvQgDX4dd1WmAfgsJ32LaZmhiXvzFrcqhry")
     // const owner = new PublicKey("EYosfdo5LurETu3YY6P5jacUr6jhKak3Ue99armeYYs9")
 
     const createPositionTx = await cpAmm.createPosition({

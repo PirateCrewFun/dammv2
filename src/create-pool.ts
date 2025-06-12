@@ -10,7 +10,6 @@ import {
   CpAmm,
   getLiquidityDeltaFromAmountA,
   getSqrtPriceFromPrice,
-  MAX_SQRT_PRICE,
   getBaseFeeParams,
   getDynamicFeeParams,
 } from "@meteora-ag/cp-amm-sdk";
@@ -31,37 +30,34 @@ const payerKeypair = Keypair.fromSecretKey(
 const payer = payerKeypair.publicKey;
 const creator = payer;
 const positionNft = Keypair.generate();
-const tokenAMint = new PublicKey("DBcgCuDHbvGwZMJ6eCv9J4B4MzAuemftHwHLofVfSM1S");
+const tokenAMint = new PublicKey("7YFLK4Ux5AWtnYjauyQX7hyFHS4BJiBtgEAa3W9qBYtD");
 const tokenBMint = new PublicKey("So11111111111111111111111111111111111111112");
 const baseDecimals = 6;
 const quoteDecimals = 9;
 
 const tokenAAmount = getAmountInLamports("10000000000", baseDecimals);
-// const tokenAAmount = new BN(0);
-const tokenBAmount = new BN(2_000_000);
+const tokenBAmount = new BN(0); 
 
-const initPrice = 0.00001394270733422854
-// const maxPrice = 0.00002494270733422854
+const initPrice = 0.000006394270733422854;
+const minPrice = 0.000006394270733422854; 
+const maxPrice = 0.00006394270733422854; 
+
 const initSqrtPrice = getSqrtPriceFromPrice(initPrice.toString(), baseDecimals, quoteDecimals);
-const minSqrtPrice = initSqrtPrice;
-const maxPrice = MAX_SQRT_PRICE
-// const maxSqrtPrice = maxPrice
-// ? getSqrtPriceFromPrice(maxPrice.toString(), baseDecimals, quoteDecimals)
-// : MAX_SQRT_PRICE
-// const maxSqrtPrice = new BN(0.00001294270733422854).mul(new BN(10 ** 6));
+const minSqrtPrice = getSqrtPriceFromPrice(minPrice.toString(), baseDecimals, quoteDecimals);
+const maxSqrtPrice = getSqrtPriceFromPrice(maxPrice.toString(), baseDecimals, quoteDecimals);
 
-const liquidityDelta = getLiquidityDeltaFromAmountA(tokenAAmount, initSqrtPrice, maxPrice);
-// const liquidityDelta = new BN(0);
+const liquidityDelta = getLiquidityDeltaFromAmountA(tokenAAmount, initSqrtPrice, maxSqrtPrice);
+
 
 const baseFee = getBaseFeeParams(
   5000, // maxBaseFeeBps (0.1%)
-  500,  // minBaseFeeBps (0.01%)
+  100,  // minBaseFeeBps (0.01%)
   0,    // feeSchedulerMode
   1,    // numberOfPeriod
   86400     // totalDuration
 );
 
-const dynamicFee = getDynamicFeeParams(200); // minBaseFeeBps
+const dynamicFee = getDynamicFeeParams(100); // minBaseFeeBps
 
 const poolFees = {
   baseFee,
@@ -86,18 +82,18 @@ async function createPool() {
       tokenAMint, // The mint address for token A
       tokenBMint, // The mint address for token B
       tokenAAmount, // Initial amount of token A to deposit
-      tokenBAmount, // Initial amount of token B to deposit
-      initSqrtPrice, // Minimum sqrt price
-      sqrtMinPrice: minSqrtPrice, // Maximum sqrt price
-      sqrtMaxPrice: maxPrice,  // Initial sqrt price in Q64 format
+      tokenBAmount, // Initial amount of token B to deposit (0 for single-sided)
+      sqrtMinPrice: minSqrtPrice, // Minimum sqrt price
+      sqrtMaxPrice: maxSqrtPrice,  // Maximum sqrt price
       liquidityDelta,  // Initial liquidity in Q64 format
+      initSqrtPrice, // Initial sqrt price
       poolFees, //Fee configuration
       hasAlphaVault: false, // Whether the pool has an alpha vault
       collectFeeMode: 0, // How fees are collected (0: normal, 1: alpha)
       activationPoint: null, // The slot or timestamp for activation
       activationType: 1, // 0: slot, 1: timestamp
       tokenAProgram: TOKEN_PROGRAM_ID, // Token program for token A
-      tokenBProgram: TOKEN_PROGRAM_ID // Token program for token A
+      tokenBProgram: TOKEN_PROGRAM_ID // Token program for token B
     });
 
     //sending the transaction onchain
