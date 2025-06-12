@@ -28,7 +28,7 @@ async function addLiquidity() {
 
   // Get deposit quote
   const depositQuote = cpAmm.getDepositQuote({
-    inAmount: new BN(2_000_000_000_000),
+    inAmount: new BN(2_000_000_000_000), // this is 2 million (number divided by 2^64)
     isTokenA: true,
     minSqrtPrice: poolState.sqrtMinPrice,
     maxSqrtPrice: poolState.sqrtMaxPrice,
