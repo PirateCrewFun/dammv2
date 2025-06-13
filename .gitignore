@@ -1,2 +1,17 @@
 node_modules
 .env
+
+id.json
+mint-keypair.json
+
+*mint.json
+mint1.json
+mint2.json
+mint3.json
+mint4.json
+mint5.json
+mint6.json
+mint7.json
+mint8.json
+mint9.json
+mint10.json
