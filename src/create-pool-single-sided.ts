@@ -20,7 +20,7 @@ import anchor from "@coral-xyz/anchor";
 import type { BN as BNType } from "@coral-xyz/anchor";
 const { BN } = anchor;
 
-const connection = new Connection(clusterApiUrl("devnet"));
+const connection = new Connection(clusterApiUrl("mainnet-beta"));
 const cpAmm = new CpAmm(connection);
 
 const payerKeypair = Keypair.fromSecretKey(
@@ -30,7 +30,7 @@ const payerKeypair = Keypair.fromSecretKey(
 const payer = payerKeypair.publicKey;
 const creator = payer;
 const positionNft = Keypair.generate();
-const tokenAMint = new PublicKey("J7bVp3Fqa9Xk8N1d5b6CdqoPLjxTiRUSbwgmQNHVftsb");
+const tokenAMint = new PublicKey("ENYx5YhMs7CwFtRg96yz2q8wYG3wAo99tq52NRYDg4QU");
 const tokenBMint = new PublicKey("So11111111111111111111111111111111111111112");
 const baseDecimals = 6;
 const quoteDecimals = 9;
@@ -46,7 +46,9 @@ const initSqrtPrice = getSqrtPriceFromPrice(initPrice.toString(), baseDecimals, 
 const minSqrtPrice = getSqrtPriceFromPrice(minPrice.toString(), baseDecimals, quoteDecimals);
 const maxSqrtPrice = getSqrtPriceFromPrice(maxPrice.toString(), baseDecimals, quoteDecimals);
 
-const liquidityDelta = getLiquidityDeltaFromAmountA(tokenAAmount, initSqrtPrice, maxSqrtPrice);
+const liquidityDelta = getLiquidityDeltaFromAmountA(
+  tokenAAmount, initSqrtPrice, maxSqrtPrice);
+
 
 
 const baseFee = getBaseFeeParams(
@@ -89,7 +91,7 @@ async function createSingleSidedPool() {
       initSqrtPrice, // Initial sqrt price
       poolFees, //Fee configuration
       hasAlphaVault: false, // Whether the pool has an alpha vault
-      collectFeeMode: 0, // How fees are collected (0: normal, 1: alpha)
+      collectFeeMode: 1, // How fees are collected (0: normal, 1: alpha)
       activationPoint: null, // The slot or timestamp for activation
       activationType: 1, // 0: slot, 1: timestamp
       tokenAProgram: TOKEN_PROGRAM_ID, // Token program for token A

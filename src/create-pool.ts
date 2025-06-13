@@ -8,10 +8,11 @@ import {
 
 import {
   CpAmm,
-  getLiquidityDeltaFromAmountA,
   getSqrtPriceFromPrice,
   getBaseFeeParams,
   getDynamicFeeParams,
+  MAX_SQRT_PRICE,
+  MIN_SQRT_PRICE,
 } from "@meteora-ag/cp-amm-sdk";
 import { Decimal } from "decimal.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
@@ -30,23 +31,52 @@ const payerKeypair = Keypair.fromSecretKey(
 const payer = payerKeypair.publicKey;
 const creator = payer;
 const positionNft = Keypair.generate();
-const tokenAMint = new PublicKey("J7bVp3Fqa9Xk8N1d5b6CdqoPLjxTiRUSbwgmQNHVftsb");
+const tokenAMint = new PublicKey("6up4NF8vkLwbW3vmcgtcPG1NMabjBYXcvD6nS77mykvH");
 const tokenBMint = new PublicKey("So11111111111111111111111111111111111111112");
 const baseDecimals = 6;
 const quoteDecimals = 9;
 
 const tokenAAmount = getAmountInLamports("50000000000", baseDecimals);
-const tokenBAmount = new BN(0); 
+const tokenBAmount = getAmountInLamports("1", quoteDecimals);
 
+// const minPrice = 0.000005394270733422854;
 const initPrice = 0.000006394270733422854;
-const minPrice = 0.000006394270733422854; 
-const maxPrice = 0.00006394270733422854; 
+// const maxPrice = 0.00006394270733422854;
 
-const initSqrtPrice = getSqrtPriceFromPrice(initPrice.toString(), baseDecimals, quoteDecimals);
-const minSqrtPrice = getSqrtPriceFromPrice(minPrice.toString(), baseDecimals, quoteDecimals);
-const maxSqrtPrice = getSqrtPriceFromPrice(maxPrice.toString(), baseDecimals, quoteDecimals);
+// const sqrtMinPrice = getSqrtPriceFromPrice(
+//   minPrice.toString(),
+//   baseDecimals,
+//   quoteDecimals
+// );
+// const sqrtMaxPrice = getSqrtPriceFromPrice(
+//   maxPrice.toString(),
+//   baseDecimals,
+//   quoteDecimals
+// );
+const initSqrtPrice = getSqrtPriceFromPrice(
+  initPrice.toString(),
+  baseDecimals,
+  quoteDecimals
+);
 
-const liquidityDelta = getLiquidityDeltaFromAmountA(tokenAAmount, initSqrtPrice, maxSqrtPrice);
+// const liquidityDelta = await cpAmm.getLiquidityDelta({
+//   maxAmountTokenA: tokenAAmount,
+//   maxAmountTokenB: tokenBAmount,
+//   sqrtPrice: initSqrtPrice,
+//   sqrtMinPrice: sqrtMinPrice,
+//   sqrtMaxPrice: sqrtMaxPrice
+// });
+
+const liquidityDelta = cpAmm.getLiquidityDelta({
+  maxAmountTokenA: tokenAAmount,
+  maxAmountTokenB: tokenBAmount,
+  sqrtPrice: initSqrtPrice,
+  sqrtMinPrice: MIN_SQRT_PRICE,
+  sqrtMaxPrice: MAX_SQRT_PRICE,
+  tokenAInfo: undefined,
+});
+
+console.log(`Liquidity delta: ${liquidityDelta.toString()}`);
 
 
 const baseFee = getBaseFeeParams(
@@ -73,6 +103,8 @@ function getAmountInLamports(amount: number | string, decimals: number): BNType 
   return new BN(amountLamports.toString());
 }
 
+
+
 async function createPool() {
   try {
     const { tx, pool, position } = await cpAmm.createCustomPool({
@@ -82,18 +114,18 @@ async function createPool() {
       tokenAMint, // The mint address for token A
       tokenBMint, // The mint address for token B
       tokenAAmount, // Initial amount of token A to deposit
-      tokenBAmount, // Initial amount of token B to deposit (0 for single-sided)
-      sqrtMinPrice: minSqrtPrice, // Minimum sqrt price
-      sqrtMaxPrice: maxSqrtPrice,  // Maximum sqrt price
+      tokenBAmount, // Initial amount of token B to deposit
+      sqrtMinPrice: MIN_SQRT_PRICE, // Minimum sqrt price
+      sqrtMaxPrice: MAX_SQRT_PRICE,  // Maximum sqrt price
       liquidityDelta,  // Initial liquidity in Q64 format
       initSqrtPrice, // Initial sqrt price
       poolFees, //Fee configuration
       hasAlphaVault: false, // Whether the pool has an alpha vault
-      collectFeeMode: 0, // How fees are collected (0: normal, 1: alpha)
+      collectFeeMode: 1, // How fees are collected (0: normal, 1: alpha)
       activationPoint: null, // The slot or timestamp for activation
       activationType: 1, // 0: slot, 1: timestamp
       tokenAProgram: TOKEN_PROGRAM_ID, // Token program for token A
-      tokenBProgram: TOKEN_PROGRAM_ID // Token program for token B
+      tokenBProgram: TOKEN_PROGRAM_ID, // Token program for token B
     });
 
     //sending the transaction onchain
@@ -113,4 +145,5 @@ async function createPool() {
 }
 
 // calling the function
-createPool();
+await createPool();
+
