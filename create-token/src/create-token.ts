@@ -29,12 +29,11 @@ async function main() {
   const mint = await generateKeyPairSigner();
   console.log("Mint address:", mint.address);
 
-  // Step 1: Create token with mint authority (the signer)
   const createTokenTx = await buildCreateTokenTransaction({
     feePayer: signer,
     latestBlockhash,
     mint,
-    mintAuthority: signer, // Set the signer as mint authority
+    mintAuthority: signer,
     freezeAuthority: undefined,
     metadata: {
       isMutable: true,
@@ -55,8 +54,6 @@ async function main() {
 
   const recipientAddress = "E6UcK3dSFc2yaFtEb35pc1WsBVcrPhEbnB87YoNDXhqy";
 
-  // Step 2: Mint 100 billion tokens to recipient
-  // Note: This assumes the recipient already has an Associated Token Account
   const tokensToMint = BigInt(100_000_000_000); // 100B
   const decimals = BigInt(6);
   const amount = tokensToMint * (BigInt(10) ** decimals);
@@ -68,9 +65,9 @@ async function main() {
     mint: mint.address,
     mintAuthority: signer,
     amount,
-    destination: address(recipientAddress), // Use address function to convert string to address type
+    destination: address(recipientAddress),
     tokenProgram: TOKEN_PROGRAM_ADDRESS,
-    computeUnitLimit: 400_000, // Increase compute unit limit for large mint
+    computeUnitLimit: 400_000, 
   });
 
   const signedMintTx = await signTransactionMessageWithSigners(mintTokensTx);
@@ -80,13 +77,6 @@ async function main() {
   console.log("Explorer link:", getExplorerLink({ cluster, transaction: mintSignature }));
   await sendAndConfirmTransaction(signedMintTx);
   console.log("Minted 100B tokens to recipient.");
-
-  // Step 3: Disable mint authority by setting it to null
-  // Note: This requires using the lower-level SPL token functions
-  // For now, we'll just log the instruction that would be needed
-  console.log("To disable mint authority, you would need to call:");
-  console.log("createSetAuthorityInstruction with AuthorityType.MintTokens and newAuthority = null");
-  console.log("This requires using the @solana/spl-token library directly");
 
   const mintData = {
     tokenName: "Fake Token",
@@ -103,10 +93,6 @@ async function main() {
   fs.writeFileSync(outputPath, JSON.stringify(mintData, null, 2));
 
   console.log(`Saved mint info to ${outputPath}`);
-  console.log("\nNext steps:");
-  console.log("1. Create an Associated Token Account for the recipient");
-  console.log("2. Use createSetAuthorityInstruction to disable mint authority");
-  console.log("3. The token will then be permanently locked (no more minting possible)");
 }
 
 main().catch((err) => {
