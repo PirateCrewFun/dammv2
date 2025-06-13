@@ -30,12 +30,12 @@ const payerKeypair = Keypair.fromSecretKey(
 const payer = payerKeypair.publicKey;
 const creator = payer;
 const positionNft = Keypair.generate();
-const tokenAMint = new PublicKey("7YFLK4Ux5AWtnYjauyQX7hyFHS4BJiBtgEAa3W9qBYtD");
+const tokenAMint = new PublicKey("J7bVp3Fqa9Xk8N1d5b6CdqoPLjxTiRUSbwgmQNHVftsb");
 const tokenBMint = new PublicKey("So11111111111111111111111111111111111111112");
 const baseDecimals = 6;
 const quoteDecimals = 9;
 
-const tokenAAmount = getAmountInLamports("10000000000", baseDecimals);
+const tokenAAmount = getAmountInLamports("50000000000", baseDecimals);
 const tokenBAmount = new BN(0); 
 
 const initPrice = 0.000006394270733422854;
